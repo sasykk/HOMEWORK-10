@@ -1,18 +1,27 @@
 from collections import UserDict
 
-class AddressBook(UserDict):
+class Field:
 
-    def add_record(self, record):
-        self.data[record.name.value] = record
+    def __init__(self, value):
+        if self.is_valid(value):
+            self.value = value
+        else:
+            raise ValueError
 
-    def find(self, name):
-        record = None if name not in self.data else self.data[name]
-        return record
+    def is_valid(self, _):
+        return True
 
-    def delete(self, name):
-        if name not in self.data:
-            return None
-        self.data.pop(name)
+    def __str__(self):
+        return str(self.value)
+
+class Name(Field):
+    pass
+
+class Phone(Field):
+
+    def is_valid(self, value):
+        if value.isdigit() and len(value) == 10:
+            return True
 
 class Record:
 
@@ -29,44 +38,34 @@ class Record:
             if ph.value == phone:
                 self.phones.pop(idx)
 
-    def change_phone(self, phone, new_phone):
+    def edit_phone(self, phone, new_phone):
         for idx, ph in enumerate(self.phones):
             if ph.value == phone:
                 if ph.is_valid(new_phone):
                     self.phones[idx].value = new_phone
                     break
         else:
-            raise ValueError("Phone not found")
+            raise ValueError("Phone not found in record")
 
-    def find_phone(self, phone):
+    def search_phone(self, phone):
         for ph in self.phones:
             if ph.value == phone:
                 return ph
         return None
 
     def __str__(self):
-        return f"Contact: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
 
-class Field:
+class AddressBook(UserDict):
 
-    def __init__(self, value):
-        if self.is_valid(value):
-            self.value = value
-        else:
-            raise ValueError
+    def add_record(self, record):
+        self.data[record.name.value] = record
 
-    def is_valid(self, _):
-        return True
+    def search(self, name):
+        record = None if name not in self.data else self.data[name]
+        return record
 
-    def __str__(self):
-        return str(self.value)
-
-class Name(Field):
-
-    pass
-
-class Phone(Field):
-
-    def is_valid(self, value):
-        if value.isdigit() and len(value) == 10:
-            return True
+    def delete(self, name):
+        if name not in self.data:
+            return None
+        self.data.pop(name)
