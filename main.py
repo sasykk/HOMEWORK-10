@@ -1,5 +1,6 @@
 from collections import UserDict
 
+
 class Field:
 
     def __init__(self, value):
@@ -14,14 +15,18 @@ class Field:
     def __str__(self):
         return str(self.value)
 
+
 class Name(Field):
     pass
+
 
 class Phone(Field):
 
     def is_valid(self, value):
         if value.isdigit() and len(value) == 10:
             return True
+        return False
+
 
 class Record:
 
@@ -34,38 +39,39 @@ class Record:
         self.phones.append(phone)
 
     def remove_phone(self, phone):
-        for idx, ph in enumerate(self.phones):
-            if ph.value == phone:
-                self.phones.pop(idx)
+        self.phones = [ph for ph in self.phones if ph.value != phone]
 
     def edit_phone(self, phone, new_phone):
-        for idx, ph in enumerate(self.phones):
+        for ph in self.phones:
             if ph.value == phone:
                 if ph.is_valid(new_phone):
-                    self.phones[idx].value = new_phone
+                    ph.value = new_phone
                     break
+                else:
+                    raise ValueError("Invalid phone number")
         else:
             raise ValueError("Phone not found in record")
 
-    def search_phone(self, phone):
+    def find_phone(self, phone):
         for ph in self.phones:
             if ph.value == phone:
                 return ph
         return None
 
     def __str__(self):
-        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+        return f"Name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+
 
 class AddressBook(UserDict):
 
     def add_record(self, record):
         self.data[record.name.value] = record
 
-    def search(self, name):
-        record = None if name not in self.data else self.data[name]
-        return record
+    def find(self, name):
+        return self.data.get(name, None)
 
     def delete(self, name):
         if name not in self.data:
             return None
+
         self.data.pop(name)
